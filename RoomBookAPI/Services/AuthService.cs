@@ -26,16 +26,12 @@ namespace RoomBookAPI.Services
             return GenerateJwtToken(user);
         }
 
-        public async Task<string> RegisterAsync(User user)
+        public async Task<int> RegisterAsync(User user)
         {
             user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
             await _dbContext.Users.AddAsync(user);
             var result = await _dbContext.SaveChangesAsync();
-            if (result != 1)
-            {
-                throw new Exception("invalid operation");
-            }
-            return "User registered successfully.";
+            return result;
         }
 
         // Method to generate JWT token
