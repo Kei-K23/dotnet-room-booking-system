@@ -6,6 +6,6 @@ namespace RoomBookAPI.Models
         public string FullName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
-        public string Role { get; set; } = "User"; // Admin, Staff and User
+        public string Role { get; set; } = "User"; // Admin, Manager and User
     }
 }
