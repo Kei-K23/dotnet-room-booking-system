@@ -1,3 +1,4 @@
+using System.Security.Authentication;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using RoomBookAPI.Dto;
@@ -57,6 +58,10 @@ namespace RoomBookAPI.Controllers
                 string token = await _authService.LoginAsync(loginDto.Email, loginDto.Password);
 
                 return Ok(new { Token = token });
+            }
+            catch (InvalidCredentialException ex)
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized, new { Error = ex.Message });
             }
             catch (Exception)
             {

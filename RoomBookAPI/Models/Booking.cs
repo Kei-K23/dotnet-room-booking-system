@@ -11,7 +11,7 @@ namespace RoomBookAPI.Models
         public DateTime EndDate { get; set; }
         public decimal TotalPrice { get; set; }
         public string Status { get; set; } = "Booked"; // Booked, Confirm, Cancelled
-        public DateTime? CratedAt { get; set; } = DateTime.Now;
-        public DateTime? UpdatedAt { get; set; }
+        public DateTime? CratedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; set; } = DateTime.UtcNow;
     }
 }

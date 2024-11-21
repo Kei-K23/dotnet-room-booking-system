@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Authentication;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
@@ -18,9 +19,9 @@ namespace RoomBookAPI.Services
         {
             User user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
             // Validate user credential
-            if (user == null || BCrypt.Net.BCrypt.Verify(password, user.Password))
+            if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
             {
-                throw new UnauthorizedAccessException("invalid credential");
+                throw new InvalidCredentialException("Invalid credential");
             }
 
             return GenerateJwtToken(user);

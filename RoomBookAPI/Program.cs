@@ -3,21 +3,33 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RoomBookAPI.ApplicationDbContext;
+using RoomBookAPI.Interfaces;
+using RoomBookAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Get configurations
 var dbConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 var secretKey = builder.Configuration["JwtSettings:SecretKey"];
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+// Validate secret key
+if (string.IsNullOrEmpty(secretKey))
+{
+    throw new InvalidOperationException("JWT secret key is not configured in appsettings.json.");
+}
 
-// DI register
-// App DB context
-builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(dbConnectionString));
+// Add services to the container
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddScoped<IAuthService, AuthService>();
 
-// JWT 
+// Add database context
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(dbConnectionString));
+
+// Add JWT Authentication
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -34,26 +46,25 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// Add Authorization Policies
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"))
     .AddPolicy("ManagerOnly", policy => policy.RequireRole("Manager"))
     .AddPolicy("MemberOnly", policy => policy.RequireRole("Member"));
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
     app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication(); // Authentication must come before Authorization
 app.UseAuthorization();
-app.UseAuthentication();
+
 app.MapControllers();
 
 app.Run();

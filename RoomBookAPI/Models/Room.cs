@@ -7,7 +7,7 @@ namespace RoomBookAPI.Models
         public int Capacity { get; set; }
         public decimal PricePerNight { get; set; }
         public string RoomType { get; set; } = string.Empty; // Single, Double, Suite
-        public DateTime? CratedAt { get; set; } = DateTime.Now;
-        public DateTime? UpdatedAt { get; set; }
+        public DateTime? CratedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; set; } = DateTime.UtcNow;
     }
 }
